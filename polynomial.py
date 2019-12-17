@@ -110,4 +110,4 @@ class Polynomial:
                 p1, p2 = p2, (p2 << (p1_len - p2_len)) + p1
                 x1, x2 = x2, (x2 << (p1_len - p2_len)) + x1
 
-        return x1 % p
+        return x2 % p

@@ -10,7 +10,10 @@ class Point:
 
     @staticmethod
     def infinity():
-        return Point((math.inf, math.inf))
+        return Point((None, None))
+
+    def is_infinity(self):
+        return self.x is None and self.y is None
 
     def clone(self):
         return Point((self.x, self.y))

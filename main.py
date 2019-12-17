@@ -1,3 +1,4 @@
+from sys import argv
 from cio import read_input
 from curve import CurveZp, CurveGF
 
@@ -9,7 +10,7 @@ curve_map = {
 
 
 def main():
-    curve_type, args, tasks = read_input()
+    curve_type, args, tasks = read_input(argv[1] if len(argv) > 1 else 'input.txt')
     constructor = curve_map[curve_type]
     curve = constructor(**args)
 

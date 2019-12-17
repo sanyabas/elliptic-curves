@@ -11,6 +11,10 @@ class CurveZp:
         self._field = FieldZp(p)
 
     def add(self, first: 'Point', second: 'Point'):
+        if first.is_infinity():
+            return second
+        if second.is_infinity():
+            return first
         if first.x == second.x:
             if first.y == 0 and second.y == 0:
                 return Point.infinity()
@@ -25,9 +29,16 @@ class CurveZp:
         return Point((x3, -y3 % self._p))
 
     def mul(self, first: 'Point', second: int):
-        result = first.clone()
+        result = Point.infinity()
+        addend = first
+
         while second:
-            result = self.add(result, first)
+            if second & 1:
+                result = self.add(result, addend)
+
+            addend = self.add(addend, addend)
+
+            second >>= 1
 
         return result
 
@@ -40,6 +51,10 @@ class CurveGF:
         self._c = c
 
     def add(self, first: 'Point', second: 'Point'):
+        if first.is_infinity():
+            return second
+        if second.is_infinity():
+            return first
         if first.x == second.x:
             if second.y == self._a * first.x + first.y:
                 return Point.infinity()
@@ -52,8 +67,15 @@ class CurveGF:
         return Point((x3, (self._a * x3 + y3) % self._p))
 
     def mul(self, first: 'Point', second: int):
-        result = first.clone()
+        result = Point.infinity()
+        addend = first
+
         while second:
-            result = self.add(result, first)
+            if second & 1:
+                result = self.add(result, addend)
+
+            addend = self.add(addend, addend)
+
+            second >>= 1
 
         return result

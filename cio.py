@@ -4,8 +4,8 @@ from polynomial import Polynomial
 from point import Point
 
 
-def read_input():
-    with open('input.txt') as f:
+def read_input(filename):
+    with open(filename) as f:
         curve_type = next_line(f)
 
         if curve_type == 'gf':
@@ -72,8 +72,9 @@ def parse_add(task: str, constructor):
 
 
 def parse_mul(task: str, constructor):
-    [match] = re.findall(r'\((.*?),(.*?)\) \d+', task)
-    [x1, y1, m] = map(constructor, map(parse_int, match))
+    [match] = re.findall(r'\((.*?),(.*?)\) ([\d\w]+)', task)
+    [x1, y1, m] = map(parse_int, match)
+    [x1, y1] = map(constructor, [x1, y1])
 
     return {
         'type': 'M',
