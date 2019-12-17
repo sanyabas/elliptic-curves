@@ -1,18 +1,17 @@
 import re
 
-from .polynomial import Polynomial
-from .point import Point
+from polynomial import Polynomial
+from point import Point
 
 
 def read_input():
-    args = {}
-    with open('read') as f:
+    with open('input.txt') as f:
         curve_type = next_line(f)
 
-        if curve_type == 'n':
-            args = read_n_curve(f)
+        if curve_type == 'gf':
+            return read_n_curve(f)
         else:
-            args = read_z_curve(f)
+            return read_z_curve(f)
 
 
 def read_n_curve(file):
@@ -20,12 +19,12 @@ def read_n_curve(file):
 
     n = parse_int(next_line(file))
     args['p'] = Polynomial.get_irreducible(n)
-    args['a'] = parse_int(next_line(file))
-    args['b'] = parse_int(next_line(file))
-    args['c'] = parse_int(next_line(file))
-    args['tasks'] = read_tasks(file, Polynomial)
+    args['a'] = Polynomial(parse_int(next_line(file)))
+    args['b'] = Polynomial(parse_int(next_line(file)))
+    args['c'] = Polynomial(parse_int(next_line(file)))
+    tasks = read_tasks(file, Polynomial)
 
-    return args
+    return 'gf', args, tasks
 
 
 def read_z_curve(file):
@@ -33,9 +32,9 @@ def read_z_curve(file):
     args['p'] = parse_int(next_line(file))
     args['a'] = parse_int(next_line(file))
     args['b'] = parse_int(next_line(file))
-    args['tasks'] = read_tasks(file, int)
+    tasks = read_tasks(file, int)
 
-    return args
+    return 'zp', args, tasks
 
 
 def parse_int(string):
@@ -50,7 +49,7 @@ def read_tasks(file, constructor):
     tasks = []
     lines = next_lines(file)
     for line in lines:
-        if line.startswith('A'):
+        if line.startswith('a'):
             tasks.append(parse_add(line, constructor))
         else:
             tasks.append(parse_mul(line, constructor))

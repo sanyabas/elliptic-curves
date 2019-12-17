@@ -33,7 +33,7 @@ class Polynomial:
         self._bits = bits
 
     def __str__(self):
-        return self._bits
+        return bin(self._bits)
 
     @staticmethod
     def get_irreducible(n: int) -> 'Polynomial':
@@ -49,6 +49,65 @@ class Polynomial:
 
         for factor, exponent in monomials:
             exponent = 0 if factor == '1' else exponent or 1
-            result += (1 << exponent)
+            result += (1 << int(exponent))
 
         return Polynomial(result)
+
+    def clone(self):
+        return Polynomial(self._bits)
+
+    def __eq__(self, other: 'Polynomial') -> bool:
+        return self._bits == other._bits
+
+    def __add__(self, other: 'Polynomial') -> 'Polynomial':
+        return Polynomial(self._bits ^ other._bits)
+
+    def __len__(self):
+        return self._bits.bit_length()
+
+    def __mul__(self, other: 'Polynomial') -> 'Polynomial':
+        result = Polynomial(0)
+        addend = self.clone()
+        otherbits = other._bits
+        while otherbits:
+            shift = otherbits & 1
+            if shift:
+                result += addend
+            addend <<=1
+            otherbits >>= 1
+
+        return result
+
+    def __mod__(self, other: 'Polynomial') -> 'Polynomial':
+        first = self.clone()
+        while len(first) >= len(other):
+            len_dif = len(first) - len(other)
+            first += Polynomial(other._bits << len_dif)
+
+        return first
+
+    def __lshift__(self, other: int) -> 'Polynomial':
+        return Polynomial(self._bits << other)
+
+    def __rshift__(self, other: int) -> 'Polynomial':
+        return Polynomial(self._bits >> other)
+
+    def invert(self, p: 'Polynomial') -> 'Polynomial':
+        p1, p2 = self.clone(), p.clone()
+        x1, x2 = Polynomial(1), Polynomial(0)
+
+        while p2 != Polynomial(1):
+            p1_len = len(p1)
+            p2_len = len(p2)
+
+            if p1_len == p2_len:
+                p1, p2 = p2, p1 + p2
+                x1, x2 = x2, x1 + x2
+            elif p1_len < p2_len:
+                p1, p2 = p2, (p1 << (p2_len - p1_len)) + p2
+                x1, x2 = x2, (x1 << (p2_len - p1_len)) + x2
+            else:
+                p1, p2 = p2, (p2 << (p1_len - p2_len)) + p1
+                x1, x2 = x2, (x2 << (p1_len - p2_len)) + x1
+
+        return x1 % p
