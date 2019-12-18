@@ -1,5 +1,5 @@
 from sys import argv
-from cio import read_input
+from cio import read_input, write_results
 from curve import CurveZp, CurveGF
 
 
@@ -16,10 +16,11 @@ def main():
 
     for task in tasks:
         if task['type'] == 'A':
-            result = curve.add(task['first'], task['second'])
+            task['result'] = curve.add(task['first'], task['second'])
         else:
-            result = curve.mul(task['first'], task['second'])
-        print(result)
+            task['result'] = curve.mul(task['first'], task['second'])
+    print(tasks)
+    write_results(tasks)
 
 
 if __name__ == '__main__':

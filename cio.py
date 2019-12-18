@@ -1,5 +1,6 @@
 import re
 
+from os import linesep
 from polynomial import Polynomial
 from point import Point
 
@@ -12,6 +13,32 @@ def read_input(filename):
             return read_n_curve(f)
         else:
             return read_z_curve(f)
+
+
+def write_results(tasks):
+    result = []
+    with open('output.txt', 'w') as f:
+        for task in tasks:
+            if task['type'] == 'A':
+                result.append(format_add(task['first'], task['second'], task['result'], task['base']))
+            else:
+                result.append(format_mul(task['first'], task['second'], task['result'], task['base']))
+        f.writelines(result)
+
+
+def format_add(first: 'Point', second: 'Point', result: 'Point', base: int) -> str:
+    return f'{first.format(base)} + {second.format(base)} = {result.format(base)}{linesep}'
+
+
+def format_mul(first: 'Point', second: int, result: 'Point', base: int) -> str:
+    formatters = {
+        2: bin,
+        10: str,
+        16: hex
+    }
+    formatter = formatters[base]
+
+    return f'{first.format(base)} * {formatter(second)} = {result.format(base)}{linesep}'
 
 
 def read_n_curve(file):
@@ -38,11 +65,20 @@ def read_z_curve(file):
 
 
 def parse_int(string):
-    if string.startswith('0x'):
+    base = get_base(string)
+    if base == 16:
         return int(string, 16)
-    if string.startswith('0b'):
+    if base == 2:
         return int(string, 2)
     return int(string)
+
+
+def get_base(string: str) -> int:
+    if string.startswith('0x'):
+        return 16
+    if string.startswith('0b'):
+        return 2
+    return 10
 
 
 def read_tasks(file, constructor):
@@ -67,7 +103,8 @@ def parse_add(task: str, constructor):
     return {
         'type': 'A',
         'first': first,
-        'second': second
+        'second': second,
+        'base': get_base(match[0])
     }
 
 
@@ -79,7 +116,8 @@ def parse_mul(task: str, constructor):
     return {
         'type': 'M',
         'first': Point((x1, y1)),
-        'second': m
+        'second': m,
+        'base': get_base(match[0])
     }
 
 
